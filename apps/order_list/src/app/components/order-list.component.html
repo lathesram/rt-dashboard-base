@@ -100,15 +100,12 @@
             <th>Amount</th>
             <th>Status</th>
             <th>Created At</th>
-            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let order of paginatedOrders" class="data-row">
             <td class="order-id-cell">
-              <a href="javascript:void(0)" (click)="onViewDetails(order)" class="order-id-link">
-                {{ order.id }}
-              </a>
+              <span class="order-id-link">{{ order.id }}</span>
             </td>
             <td>{{ order.customer }}</td>
             <td class="amount-cell">{{ formatCurrency(order.amount) }}</td>
@@ -119,14 +116,6 @@
             </td>
             <td class="timestamp-cell" [title]="order.createdAt.toLocaleString()">
               {{ getRelativeTime(order.createdAt) }}
-            </td>
-            <td class="actions-cell">
-              <button class="action-btn" (click)="onViewDetails(order)" title="View details">
-                👁️
-              </button>
-              <button class="action-btn" (click)="onChangeStatus(order)" title="Change status">
-                ✏️
-              </button>
             </td>
           </tr>
         </tbody>

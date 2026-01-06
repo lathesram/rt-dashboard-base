@@ -1,7 +1,7 @@
-<ul class="remote-menu">
-  <li><a routerLink="/">Home</a></li>
-  <li><a routerLink="order_producer">OrderProducer</a></li>
-  <li><a routerLink="order_list">OrderList</a></li>
-  <li><a routerLink="order_summary">OrderSummary</a></li>
-</ul>
+<nav class="remote-menu">
+  <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+  <li><a routerLink="order_producer" routerLinkActive="active">Order Producer</a></li>
+  <li><a routerLink="order_list" routerLinkActive="active">Order List</a></li>
+  <li><a routerLink="order_summary" routerLinkActive="active">Order Summary</a></li>
+</nav>
 <router-outlet></router-outlet>

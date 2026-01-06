@@ -44,7 +44,6 @@ export class OrderListComponent {
   private generateMockOrders(): void {
     const names = ['John Smith', 'Jane Johnson', 'Alice Williams', 'Bob Brown', 'Charlie Jones', 
                    'Diana Garcia', 'Eve Miller', 'Frank Davis', 'Grace Rodriguez', 'Henry Martinez'];
-    const statuses: Order['status'][] = ['New', 'Processing', 'Completed'];
     const now = Date.now();
     
     for (let i = 1; i <= 75; i++) {
@@ -153,9 +152,6 @@ export class OrderListComponent {
     for (let i = start; i <= end; i++) pages.push(i);
     return pages;
   }
-  
-  onViewDetails(order: Order): void {}
-  onChangeStatus(order: Order): void {}
   
   getStatusClass(status: Order['status']): string {
     return `status-${status.toLowerCase()}`;

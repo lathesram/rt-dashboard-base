@@ -1,0 +1,83 @@
+<div class="home-container">
+  <header class="hero">
+    <h1>Real-Time Order Dashboard</h1>
+    <p class="tagline">Micro Frontend Architecture Demo</p>
+    <p class="description">
+      A modern dashboard built with Angular 18 and Module Federation, demonstrating
+      real-time order management across independent micro frontends.
+    </p>
+  </header>
+
+  <section class="features">
+    <h2>Dashboard Features</h2>
+    <div class="feature-grid">
+      @for (feature of features; track feature.title) {
+        <div class="feature-card" [style.border-left-color]="feature.color">
+          <div class="feature-icon">{{ feature.icon }}</div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+          <a [routerLink]="feature.route" class="feature-link">
+            Open {{ feature.title }} →
+          </a>
+        </div>
+      }
+    </div>
+  </section>
+
+  <section class="how-it-works">
+    <h2>How It Works</h2>
+    <div class="workflow">
+      <div class="workflow-step">
+        <div class="step-number">1</div>
+        <h4>Generate Orders</h4>
+        <p>Use the Order Producer to create new orders with customizable settings</p>
+      </div>
+      <div class="workflow-arrow">→</div>
+      <div class="workflow-step">
+        <div class="step-number">2</div>
+        <h4>View & Manage</h4>
+        <p>Browse all orders in the Order List with search and filtering capabilities</p>
+      </div>
+      <div class="workflow-arrow">→</div>
+      <div class="workflow-step">
+        <div class="step-number">3</div>
+        <h4>Analyze Data</h4>
+        <p>Monitor performance metrics and trends in the Order Summary dashboard</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="tech-stack">
+    <h2>Technology Stack</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <strong>Angular 18+</strong>
+        <span>Standalone Components</span>
+      </div>
+      <div class="tech-item">
+        <strong>Module Federation</strong>
+        <span>Micro Frontends</span>
+      </div>
+      <div class="tech-item">
+        <strong>NX Workspace</strong>
+        <span>Monorepo Management</span>
+      </div>
+      <div class="tech-item">
+        <strong>TypeScript</strong>
+        <span>Type Safety</span>
+      </div>
+      <div class="tech-item">
+        <strong>SCSS</strong>
+        <span>Modern Styling</span>
+      </div>
+      <div class="tech-item">
+        <strong>Real-time Updates</strong>
+        <span>Live Data Sync</span>
+      </div>
+    </div>
+  </section>
+
+  <footer class="home-footer">
+    <p>Select a feature above to get started with the dashboard</p>
+  </footer>
+</div>
