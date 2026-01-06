@@ -1,67 +1,72 @@
 .order-producer-container {
-  padding: 1.5rem;
-  min-height: 100vh;
+  padding: 0.75rem;
+  height: calc(100vh - 51px);
   background: #f9fafb;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .producer-card {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
   background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.1);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .card-header {
   background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-  padding: 1.5rem;
+  padding: 0.75rem 1rem;
   color: white;
 
   h1 {
     margin: 0;
-    font-size: 2rem;
+    font-size: 1.25rem;
     font-weight: 600;
   }
 }
 
 // Display Section
 .display-section {
-  padding: 1.5rem;
+  padding: 0.75rem;
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
 }
 
 .display-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
 }
 
 .display-item {
   label {
     display: block;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     color: #6b7280;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     font-weight: 500;
   }
 
   .metric-value {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #1f2937;
     line-height: 1;
 
     &.small {
-      font-size: 1.5rem;
+      font-size: 1rem;
       color: #4f46e5;
     }
   }
 
   .timestamp {
-    font-size: 1.25rem;
+    font-size: 0.875rem;
     color: #374151;
     font-weight: 500;
   }
@@ -69,10 +74,10 @@
 
 .status-badge {
   display: inline-block;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.875rem;
   transition: all 150ms ease-in-out;
 
   &.active {
@@ -91,8 +96,8 @@
   }
 
   &.small {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
   }
 }
 
