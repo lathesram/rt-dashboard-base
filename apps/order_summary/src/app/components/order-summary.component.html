@@ -1,0 +1,234 @@
+<div class="order-summary-container">
+  <div class="summary-card">
+    <!-- Header Section -->
+    <div class="card-header">
+      <div class="header-content">
+        <h1>Order Summary Dashboard</h1>
+        <div class="header-meta">
+          <span class="last-updated">Last updated: {{ secondsSinceUpdate }}s ago</span>
+          <span class="auto-refresh-indicator" [class.active]="isAutoRefresh">
+            <span class="indicator-dot"></span>
+            {{ isAutoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Time Range Selector -->
+      <div class="time-range-selector">
+        <select [(ngModel)]="selectedTimeRange" (change)="onTimeRangeChange()" class="time-range-select">
+          <option *ngFor="let option of timeRangeOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <!-- KPI Cards Row -->
+    <div class="kpi-section">
+      <div class="kpi-grid">
+        <!-- Total Orders -->
+        <div class="kpi-card">
+          <div class="kpi-icon">📦</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Total Orders</div>
+            <div class="kpi-value">{{ formatNumber(summary.total) }}</div>
+            <div class="kpi-trend" [ngClass]="getTrendClass(summary.trends.totalChange)">
+              <span class="trend-icon">{{ getTrendIcon(summary.trends.totalChange) }}</span>
+              <span class="trend-text">{{ summary.trends.totalChange }}% from yesterday</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Orders -->
+        <div class="kpi-card new">
+          <div class="kpi-icon">✨</div>
+          <div class="kpi-content">
+            <div class="kpi-label">New Orders</div>
+            <div class="kpi-value">{{ formatNumber(summary.byStatus.new) }}</div>
+            <div class="kpi-badge new-badge">
+              {{ formatPercentage(statusPercentages.new) }} of total
+            </div>
+          </div>
+        </div>
+
+        <!-- Processing Orders -->
+        <div class="kpi-card processing">
+          <div class="kpi-icon">⚙️</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Processing Orders</div>
+            <div class="kpi-value">{{ formatNumber(summary.byStatus.processing) }}</div>
+            <div class="kpi-badge processing-badge">
+              {{ formatPercentage(statusPercentages.processing) }} of total
+            </div>
+          </div>
+        </div>
+
+        <!-- Completed Orders -->
+        <div class="kpi-card completed">
+          <div class="kpi-icon">✅</div>
+          <div class="kpi-content">
+            <div class="kpi-label">Completed Orders</div>
+            <div class="kpi-value">{{ formatNumber(summary.byStatus.completed) }}</div>
+            <div class="kpi-badge completed-badge">
+              {{ formatPercentage(statusPercentages.completed) }} of total
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="statistics-section">
+      <div class="statistics-grid">
+        <!-- Status Breakdown -->
+        <div class="stat-card">
+          <h3>Status Breakdown</h3>
+          
+          <div class="status-breakdown">
+            <!-- New -->
+            <div class="status-item">
+              <div class="status-header">
+                <span class="status-label">
+                  <span class="status-dot new"></span>
+                  New
+                </span>
+                <span class="status-count">{{ formatNumber(summary.byStatus.new) }}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill new" [style.width.%]="statusPercentages.new"></div>
+              </div>
+              <div class="status-percentage">{{ formatPercentage(statusPercentages.new) }}</div>
+            </div>
+
+            <!-- Processing -->
+            <div class="status-item">
+              <div class="status-header">
+                <span class="status-label">
+                  <span class="status-dot processing"></span>
+                  Processing
+                </span>
+                <span class="status-count">{{ formatNumber(summary.byStatus.processing) }}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill processing" [style.width.%]="statusPercentages.processing"></div>
+              </div>
+              <div class="status-percentage">{{ formatPercentage(statusPercentages.processing) }}</div>
+            </div>
+
+            <!-- Completed -->
+            <div class="status-item">
+              <div class="status-header">
+                <span class="status-label">
+                  <span class="status-dot completed"></span>
+                  Completed
+                </span>
+                <span class="status-count">{{ formatNumber(summary.byStatus.completed) }}</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill completed" [style.width.%]="statusPercentages.completed"></div>
+              </div>
+              <div class="status-percentage">{{ formatPercentage(statusPercentages.completed) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Value -->
+        <div class="stat-card">
+          <h3>Order Value</h3>
+          
+          <div class="revenue-display">
+            <div class="revenue-item primary">
+              <div class="revenue-label">Total Revenue</div>
+              <div class="revenue-value">{{ formatCurrency(summary.revenue.total) }}</div>
+            </div>
+
+            <div class="revenue-grid">
+              <div class="revenue-item">
+                <div class="revenue-label">Average Order Value</div>
+                <div class="revenue-value small">{{ formatCurrency(summary.revenue.average) }}</div>
+              </div>
+
+              <div class="revenue-item">
+                <div class="revenue-label">Highest Order</div>
+                <div class="revenue-value small">{{ formatCurrency(summary.revenue.highest) }}</div>
+              </div>
+            </div>
+
+            <!-- Simple value distribution visualization -->
+            <div class="value-distribution">
+              <div class="distribution-label">Value Distribution</div>
+              <div class="distribution-bars">
+                <div class="dist-bar" style="height: 40%;" title="$0-$100"></div>
+                <div class="dist-bar" style="height: 65%;" title="$100-$500"></div>
+                <div class="dist-bar" style="height: 90%;" title="$500-$1000"></div>
+                <div class="dist-bar" style="height: 55%;" title="$1000-$2500"></div>
+                <div class="dist-bar" style="height: 30%;" title="$2500+"></div>
+              </div>
+              <div class="distribution-labels">
+                <span>$0-100</span>
+                <span>$100-500</span>
+                <span>$500-1k</span>
+                <span>$1k-2.5k</span>
+                <span>$2.5k+</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Timeline -->
+    <div class="activity-section">
+      <h3>Activity Timeline</h3>
+      
+      <div class="activity-timeline">
+        <div *ngFor="let activity of activityTimeline" 
+             class="activity-item" 
+             [ngClass]="getActivityTypeClass(activity.type)">
+          <div class="activity-icon">
+            <span *ngIf="activity.type === 'info'">ℹ️</span>
+            <span *ngIf="activity.type === 'success'">✅</span>
+            <span *ngIf="activity.type === 'warning'">⚠️</span>
+          </div>
+          <div class="activity-content">
+            <div class="activity-message">{{ activity.message }}</div>
+            <div class="activity-time">{{ getTimeAgo(activity.timestamp) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="performance-section">
+      <h3>Performance Metrics</h3>
+      
+      <div class="performance-grid">
+        <div class="performance-item">
+          <div class="perf-label">Computation Count</div>
+          <div class="perf-value">{{ formatNumber(summary.performance.computationCount) }}</div>
+          <div class="perf-hint">Times summary recalculated</div>
+        </div>
+
+        <div class="performance-item">
+          <div class="perf-label">Last Calculation Time</div>
+          <div class="perf-value">{{ summary.performance.lastCalculationMs.toFixed(2) }} ms</div>
+          <div class="perf-hint">Performance measurement</div>
+        </div>
+
+        <div class="performance-item">
+          <div class="perf-label">Memory Usage</div>
+          <div class="perf-value">{{ memoryUsagePercentage }}%</div>
+          <div class="memory-bar">
+            <div class="memory-fill" [style.width.%]="memoryUsagePercentage"></div>
+          </div>
+        </div>
+
+        <div class="performance-item">
+          <div class="perf-label">Avg Processing Time</div>
+          <div class="perf-value">{{ summary.performance.avgProcessingTime }} min</div>
+          <div class="perf-hint">Order processing duration</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

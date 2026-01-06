@@ -1,0 +1,153 @@
+<div class="order-producer-container">
+  <div class="producer-card">
+    <!-- Header -->
+    <div class="card-header">
+      <h1>Order Producer</h1>
+    </div>
+
+    <!-- Display Section -->
+    <div class="display-section">
+      <div class="display-grid">
+        <!-- Generation Status -->
+        <div class="display-item">
+          <label>Generation Status</label>
+          <div class="status-badge" [ngClass]="generationStatus.toLowerCase()">
+            {{ generationStatus }}
+          </div>
+        </div>
+
+        <!-- Orders Generated -->
+        <div class="display-item">
+          <label>Orders Generated</label>
+          <div class="metric-value">{{ ordersGenerated }}</div>
+        </div>
+
+        <!-- Generation Rate -->
+        <div class="display-item">
+          <label>Generation Rate</label>
+          <div class="metric-value small">{{ generationRate }}</div>
+        </div>
+
+        <!-- Last Generated -->
+        <div class="display-item">
+          <label>Last Generated</label>
+          <div class="timestamp">{{ formatTimestamp(lastGenerated) }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Control Section -->
+    <div class="control-section">
+      <h3>Controls</h3>
+      <div class="button-group">
+        <button 
+          class="btn btn-primary" 
+          (click)="onStartGeneration()"
+          [disabled]="generationStatus === 'Active'">
+          <span class="btn-icon">▶</span>
+          Start Generation
+        </button>
+
+        <button 
+          class="btn btn-warning" 
+          (click)="onPauseGeneration()"
+          [disabled]="generationStatus !== 'Active'">
+          <span class="btn-icon">⏸</span>
+          Pause Generation
+        </button>
+
+        <button 
+          class="btn btn-danger" 
+          (click)="onStopGeneration()"
+          [disabled]="generationStatus === 'Stopped'">
+          <span class="btn-icon">⏹</span>
+          Stop Generation
+        </button>
+
+        <button 
+          class="btn btn-secondary" 
+          (click)="onResetCounter()">
+          <span class="btn-icon">↻</span>
+          Reset Counter
+        </button>
+      </div>
+    </div>
+
+    <!-- Configuration Section -->
+    <div class="config-section">
+      <div class="config-header" (click)="toggleConfig()">
+        <h3>Configuration</h3>
+        <span class="toggle-icon">{{ isConfigExpanded ? '▼' : '▶' }}</span>
+      </div>
+
+      <div class="config-content" [class.expanded]="isConfigExpanded">
+        <div class="config-grid">
+          <!-- Generation Interval -->
+          <div class="config-item">
+            <label for="interval">Generation Interval</label>
+            <select 
+              id="interval" 
+              [(ngModel)]="generationInterval" 
+              (change)="onIntervalChange()"
+              class="config-select">
+              <option *ngFor="let option of intervalOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Batch Size -->
+          <div class="config-item">
+            <label for="batchSize">Batch Size</label>
+            <select 
+              id="batchSize" 
+              [(ngModel)]="batchSize" 
+              (change)="onBatchSizeChange()"
+              class="config-select">
+              <option *ngFor="let size of batchSizeOptions" [value]="size">
+                {{ size }} {{ size === 1 ? 'order' : 'orders' }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Max Orders -->
+          <div class="config-item">
+            <label for="maxOrders">Max Orders</label>
+            <input 
+              id="maxOrders" 
+              type="number" 
+              [(ngModel)]="maxOrders" 
+              (change)="onMaxOrdersChange()"
+              class="config-input"
+              min="1"
+              max="10000">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activity Log Section -->
+    <div class="activity-section">
+      <h3>Activity Log</h3>
+      <div class="activity-log">
+        <div *ngIf="activityLog.length === 0" class="empty-state">
+          No orders generated yet
+        </div>
+
+        <div *ngFor="let order of activityLog.slice(-10).reverse()" class="activity-item">
+          <div class="activity-main">
+            <span class="order-id">{{ order.id }}</span>
+            <span class="status-badge small" [ngClass]="getStatusClass(order.status)">
+              {{ order.status }}
+            </span>
+          </div>
+          <div class="activity-meta">
+            <span class="customer">{{ order.customer }}</span>
+            <span class="amount">${{ order.amount.toFixed(2) }}</span>
+            <span class="time">{{ getTimeAgo(order.timestamp) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

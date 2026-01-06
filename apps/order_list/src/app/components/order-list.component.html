@@ -1,0 +1,182 @@
+<div class="order-list-container">
+  <div class="list-card">
+    <!-- Header -->
+    <div class="card-header">
+      <h1>Live Order List</h1>
+      <div class="performance-indicator">
+        <div class="indicator-item">
+          <span class="label">Last updated:</span>
+          <span class="value">{{ secondsSinceUpdate }}s ago</span>
+        </div>
+        <div class="indicator-item">
+          <span class="label">Renders:</span>
+          <span class="value">{{ renderCount }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-row">
+        <!-- Search -->
+        <div class="search-box">
+          <input 
+            type="text" 
+            [(ngModel)]="searchQuery" 
+            (input)="onSearch()"
+            placeholder="Search orders..."
+            class="search-input">
+          <span class="search-icon">🔍</span>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="filter-group">
+          <label>Status:</label>
+          <select [(ngModel)]="statusFilter" (change)="onStatusFilterChange()" class="filter-select">
+            <option value="All">All</option>
+            <option value="New">New</option>
+            <option value="Processing">Processing</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
+
+        <!-- Sort -->
+        <div class="filter-group">
+          <label>Sort by:</label>
+          <select #sortSelect (change)="onSortChange(sortField, sortDirection)" [(ngModel)]="sortField" class="filter-select">
+            <option value="id">ID</option>
+            <option value="timestamp">Timestamp</option>
+            <option value="amount">Amount</option>
+          </select>
+          <button 
+            class="sort-direction-btn" 
+            (click)="onSortChange(sortField, sortDirection === 'asc' ? 'desc' : 'asc')">
+            {{ sortDirection === 'asc' ? '↑' : '↓' }}
+          </button>
+        </div>
+
+        <!-- Auto-refresh Toggle -->
+        <div class="auto-refresh">
+          <label class="toggle-label">
+            <input type="checkbox" [(ngModel)]="autoRefresh" (change)="toggleAutoRefresh()">
+            <span class="toggle-text">Auto-refresh</span>
+            <span class="refresh-indicator" [class.active]="autoRefresh"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Count Display -->
+      <div class="count-display">
+        {{ paginationInfo }}
+      </div>
+    </div>
+
+    <!-- Loading Skeleton -->
+    <div *ngIf="isLoading" class="loading-skeleton">
+      <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+        <div class="skeleton-cell"></div>
+        <div class="skeleton-cell"></div>
+        <div class="skeleton-cell"></div>
+        <div class="skeleton-cell"></div>
+        <div class="skeleton-cell"></div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div *ngIf="!isLoading" class="table-container">
+      <!-- Empty State -->
+      <div *ngIf="displayedOrders.length === 0" class="empty-state">
+        <div class="empty-icon">📋</div>
+        <div class="empty-message">No orders found</div>
+        <div class="empty-hint">Try adjusting your filters</div>
+      </div>
+
+      <!-- Table -->
+      <table *ngIf="paginatedOrders.length > 0" class="data-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer Name</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Created At</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of paginatedOrders" class="data-row">
+            <td class="order-id-cell">
+              <a href="javascript:void(0)" (click)="onViewDetails(order)" class="order-id-link">
+                {{ order.id }}
+              </a>
+            </td>
+            <td>{{ order.customer }}</td>
+            <td class="amount-cell">{{ formatCurrency(order.amount) }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                {{ order.status }}
+              </span>
+            </td>
+            <td class="timestamp-cell" [title]="order.createdAt.toLocaleString()">
+              {{ getRelativeTime(order.createdAt) }}
+            </td>
+            <td class="actions-cell">
+              <button class="action-btn" (click)="onViewDetails(order)" title="View details">
+                👁️
+              </button>
+              <button class="action-btn" (click)="onChangeStatus(order)" title="Change status">
+                ✏️
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="displayedOrders.length > 0" class="pagination-section">
+      <div class="page-size-selector">
+        <label>Show:</label>
+        <select [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="page-size-select">
+          <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+        </select>
+        <span>per page</span>
+      </div>
+
+      <div class="page-navigation">
+        <button 
+          class="page-btn" 
+          (click)="previousPage()" 
+          [disabled]="currentPage === 1">
+          ← Previous
+        </button>
+
+        <button 
+          *ngFor="let page of visiblePages"
+          class="page-btn page-number" 
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)">
+          {{ page }}
+        </button>
+
+        <button 
+          class="page-btn" 
+          (click)="nextPage()" 
+          [disabled]="currentPage === totalPages">
+          Next →
+        </button>
+      </div>
+
+      <div class="go-to-page">
+        <label>Go to:</label>
+        <input 
+          type="number" 
+          [min]="1" 
+          [max]="totalPages"
+          class="page-input"
+          #pageInput
+          (keyup.enter)="goToPage(+pageInput.value)">
+      </div>
+    </div>
+  </div>
+</div>
