@@ -176,59 +176,5 @@
         </div>
       </div>
     </div>
-
-    <!-- Activity Timeline -->
-    <div class="activity-section">
-      <h3>Activity Timeline</h3>
-      
-      <div class="activity-timeline">
-        <div *ngFor="let activity of activityTimeline" 
-             class="activity-item" 
-             [ngClass]="getActivityTypeClass(activity.type)">
-          <div class="activity-icon">
-            <span *ngIf="activity.type === 'info'">ℹ️</span>
-            <span *ngIf="activity.type === 'success'">✅</span>
-            <span *ngIf="activity.type === 'warning'">⚠️</span>
-          </div>
-          <div class="activity-content">
-            <div class="activity-message">{{ activity.message }}</div>
-            <div class="activity-time">{{ getTimeAgo(activity.timestamp) }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Performance Metrics -->
-    <div class="performance-section">
-      <h3>Performance Metrics</h3>
-      
-      <div class="performance-grid">
-        <div class="performance-item">
-          <div class="perf-label">Computation Count</div>
-          <div class="perf-value">{{ formatNumber(summary.performance.computationCount) }}</div>
-          <div class="perf-hint">Times summary recalculated</div>
-        </div>
-
-        <div class="performance-item">
-          <div class="perf-label">Last Calculation Time</div>
-          <div class="perf-value">{{ summary.performance.lastCalculationMs.toFixed(2) }} ms</div>
-          <div class="perf-hint">Performance measurement</div>
-        </div>
-
-        <div class="performance-item">
-          <div class="perf-label">Memory Usage</div>
-          <div class="perf-value">{{ memoryUsagePercentage }}%</div>
-          <div class="memory-bar">
-            <div class="memory-fill" [style.width.%]="memoryUsagePercentage"></div>
-          </div>
-        </div>
-
-        <div class="performance-item">
-          <div class="perf-label">Avg Processing Time</div>
-          <div class="perf-value">{{ summary.performance.avgProcessingTime }} min</div>
-          <div class="perf-hint">Order processing duration</div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
