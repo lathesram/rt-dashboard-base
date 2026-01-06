@@ -125,29 +125,5 @@
         </div>
       </div>
     </div>
-
-    <!-- Activity Log Section -->
-    <div class="activity-section">
-      <h3>Activity Log</h3>
-      <div class="activity-log">
-        <div *ngIf="activityLog.length === 0" class="empty-state">
-          No orders generated yet
-        </div>
-
-        <div *ngFor="let order of activityLog.slice(-10).reverse()" class="activity-item">
-          <div class="activity-main">
-            <span class="order-id">{{ order.id }}</span>
-            <span class="status-badge small" [ngClass]="getStatusClass(order.status)">
-              {{ order.status }}
-            </span>
-          </div>
-          <div class="activity-meta">
-            <span class="customer">{{ order.customer }}</span>
-            <span class="amount">${{ order.amount.toFixed(2) }}</span>
-            <span class="time">{{ getTimeAgo(order.timestamp) }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
