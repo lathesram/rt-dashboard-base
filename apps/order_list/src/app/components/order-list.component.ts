@@ -30,7 +30,6 @@ export class OrderListComponent {
   statusFilter: 'All' | 'New' | 'Processing' | 'Completed' = 'All';
   sortField: SortField = 'id';
   sortDirection: SortDirection = 'desc';
-  autoRefresh = false;
   pageSize = 25;
   currentPage = 1;
   pageSizeOptions = [10, 25, 50, 100];
@@ -104,10 +103,6 @@ export class OrderListComponent {
     this.sortField = field;
     this.sortDirection = direction;
     this.applyFiltersAndSort();
-  }
-  
-  toggleAutoRefresh(): void {
-    this.autoRefresh = !this.autoRefresh;
   }
   
   get totalPages(): number {

@@ -54,15 +54,6 @@
             {{ sortDirection === 'asc' ? '↑' : '↓' }}
           </button>
         </div>
-
-        <!-- Auto-refresh Toggle -->
-        <div class="auto-refresh">
-          <label class="toggle-label">
-            <input type="checkbox" [(ngModel)]="autoRefresh" (change)="toggleAutoRefresh()">
-            <span class="toggle-text">Auto-refresh</span>
-            <span class="refresh-indicator" [class.active]="autoRefresh"></span>
-          </label>
-        </div>
       </div>
 
       <!-- Count Display -->
