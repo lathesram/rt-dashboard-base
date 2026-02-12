@@ -11,27 +11,27 @@
         <!-- Generation Status -->
         <div class="display-item">
           <label>Generation Status</label>
-          <div class="status-badge" [ngClass]="generationStatus.toLowerCase()">
-            {{ generationStatus }}
+          <div class="status-badge" [ngClass]="(generationStatus$ | async)?.toLowerCase()">
+            {{ generationStatus$ | async }}
           </div>
         </div>
 
         <!-- Orders Generated -->
         <div class="display-item">
           <label>Orders Generated</label>
-          <div class="metric-value">{{ ordersGenerated }}</div>
+          <div class="metric-value">{{ ordersGenerated$ | async }}</div>
         </div>
 
         <!-- Generation Rate -->
         <div class="display-item">
           <label>Generation Rate</label>
-          <div class="metric-value small">{{ generationRate }}</div>
+          <div class="metric-value small">{{ formatRate(generationRate$ | async) }}</div>
         </div>
 
         <!-- Last Generated -->
         <div class="display-item">
           <label>Last Generated</label>
-          <div class="timestamp">{{ formatTimestamp(lastGenerated) }}</div>
+          <div class="timestamp">{{ formatTimestamp(lastGenerated$ | async) }}</div>
         </div>
       </div>
     </div>
@@ -43,7 +43,7 @@
         <button 
           class="btn btn-primary" 
           (click)="onStartGeneration()"
-          [disabled]="generationStatus === 'Active'">
+          [disabled]="(generationStatus$ | async) === 'Active'">
           <span class="btn-icon">▶</span>
           Start Generation
         </button>
@@ -51,7 +51,7 @@
         <button 
           class="btn btn-danger" 
           (click)="onStopGeneration()"
-          [disabled]="generationStatus === 'Stopped'">
+          [disabled]="(generationStatus$ | async) === 'Stopped'">
           <span class="btn-icon">⏹</span>
           Stop Generation
         </button>

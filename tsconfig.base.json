@@ -15,6 +15,9 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@rt-dashboard/shared/data-access-orders": [
+        "libs/shared/data-access-orders/src/index.ts"
+      ],
       "order_producer/Routes": [
         "apps/order_producer/src/app/remote-entry/entry.routes.ts"
       ],

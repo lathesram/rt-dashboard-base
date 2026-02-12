@@ -1,17 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface Order {
-  id: string;
-  customer: string;
-  amount: number;
-  status: 'New' | 'Processing' | 'Completed';
-  createdAt: Date;
-}
-
-type SortField = 'id' | 'timestamp' | 'amount';
-type SortDirection = 'asc' | 'desc';
+import { OrdersFacade, Order, SortField, SortDirection, StatusFilter } from '@rt-dashboard/shared/data-access-orders';
+import { Observable, Subscription, interval } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'rt-order-list',
@@ -20,130 +12,98 @@ type SortDirection = 'asc' | 'desc';
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss']
 })
-export class OrderListComponent {
-  allOrders: Order[] = [];
+export class OrderListComponent implements OnInit, OnDestroy {
+  private facade = inject(OrdersFacade);
+  private cdr = inject(ChangeDetectorRef);
+  private zone = inject(NgZone);
+  private autoRefreshSubscription?: Subscription;
+
+  // State from store
+  allOrders$: Observable<Order[]> = this.facade.filteredOrders$;
+  displayedOrders$: Observable<Order[]> = this.facade.filteredOrders$;
+  totalOrders$: Observable<number> = this.facade.filteredOrders$.pipe(
+    map(orders => orders.length)
+  );
+  
+  // Local properties for template binding
   displayedOrders: Order[] = [];
+  paginatedOrders: Order[] = [];
+  totalPages = 0;
+  visiblePages: number[] = [];
+  paginationInfo = '';
+  
   isLoading = false;
   renderCount = 0;
   lastUpdated = new Date();
+  
+  // Filter state (local for two-way binding)
   searchQuery = '';
-  statusFilter: 'All' | 'New' | 'Processing' | 'Completed' = 'All';
-  sortField: SortField = 'id';
+  statusFilter: StatusFilter = 'All';
+  sortField: SortField = 'createdAt';
   sortDirection: SortDirection = 'desc';
-  autoRefresh = false;
+  
   pageSize = 25;
   currentPage = 1;
   pageSizeOptions = [10, 25, 50, 100];
   
-  constructor() {
-    this.generateMockOrders();
-    this.applyFiltersAndSort();
-    this.renderCount++;
-  }
-  
-  private generateMockOrders(): void {
-    const names = ['John Smith', 'Jane Johnson', 'Alice Williams', 'Bob Brown', 'Charlie Jones', 
-                   'Diana Garcia', 'Eve Miller', 'Frank Davis', 'Grace Rodriguez', 'Henry Martinez'];
-    const now = Date.now();
-    
-    for (let i = 1; i <= 75; i++) {
-      const rand = Math.random();
-      const status = rand < 0.4 ? 'New' : rand < 0.75 ? 'Processing' : 'Completed';
-      
-      this.allOrders.push({
-        id: `ORD-${String(i).padStart(4, '0')}`,
-        customer: names[Math.floor(Math.random() * names.length)],
-        amount: Math.floor(Math.random() * 4950) + 50,
-        status,
-        createdAt: new Date(now - Math.random() * 86400000)
+  ngOnInit(): void {
+    // Sync local filter state with store
+    this.facade.filtersState$.subscribe(filters => {
+      this.searchQuery = filters.searchTerm;
+      this.statusFilter = filters.statusFilter;
+      this.sortField = filters.sortBy;
+      this.sortDirection = filters.sortDirection;
+    });
+
+    // Subscribe to displayedOrders and update local properties
+    this.displayedOrders$.subscribe(orders => {
+      this.zone.run(() => {
+        this.displayedOrders = orders;
+        this.renderCount++;
+        this.lastUpdated = new Date();
+        this.updatePagination();
+        this.cdr.detectChanges();
       });
-    }
-    
-    this.allOrders.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-  }
-  
-  applyFiltersAndSort(): void {
-    this.renderCount++;
-    let filtered = this.allOrders;
-    
-    if (this.statusFilter !== 'All') {
-      filtered = filtered.filter(order => order.status === this.statusFilter);
-    }
-    
-    if (this.searchQuery.trim()) {
-      const query = this.searchQuery.toLowerCase();
-      filtered = filtered.filter(order =>
-        order.id.toLowerCase().includes(query) ||
-        order.customer.toLowerCase().includes(query) ||
-        order.amount.toString().includes(query)
-      );
-    }
-    
-    filtered = [...filtered].sort((a, b) => {
-      let val = 0;
-      if (this.sortField === 'id') val = a.id.localeCompare(b.id);
-      else if (this.sortField === 'timestamp') val = a.createdAt.getTime() - b.createdAt.getTime();
-      else val = a.amount - b.amount;
-      return this.sortDirection === 'asc' ? val : -val;
     });
     
-    this.displayedOrders = filtered;
-    this.currentPage = 1;
-    this.lastUpdated = new Date();
+    // Start auto-refresh by default
+    this.startAutoRefresh();
   }
   
-  onSearch(): void {
-    this.applyFiltersAndSort();
+  ngOnDestroy(): void {
+    this.stopAutoRefresh();
   }
   
-  onStatusFilterChange(): void {
-    this.applyFiltersAndSort();
+  private startAutoRefresh(): void {
+    this.stopAutoRefresh();
+    // Update every second for real-time feel
+    this.autoRefreshSubscription = interval(1000).subscribe(() => {
+      this.zone.run(() => {
+        // Force update of relative times and last updated timestamp
+        this.lastUpdated = new Date();
+        this.cdr.detectChanges();
+      });
+    });
   }
   
-  onSortChange(field: SortField, direction: SortDirection): void {
-    this.sortField = field;
-    this.sortDirection = direction;
-    this.applyFiltersAndSort();
-  }
-  
-  toggleAutoRefresh(): void {
-    this.autoRefresh = !this.autoRefresh;
-  }
-  
-  get totalPages(): number {
-    return Math.ceil(this.displayedOrders.length / this.pageSize);
-  }
-  
-  get paginatedOrders(): Order[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.displayedOrders.slice(start, start + this.pageSize);
-  }
-  
-  get paginationInfo(): string {
-    const start = (this.currentPage - 1) * this.pageSize + 1;
-    const end = Math.min(start + this.pageSize - 1, this.displayedOrders.length);
-    return `Showing ${start}-${end} of ${this.displayedOrders.length} orders`;
-  }
-  
-  onPageSizeChange(): void {
-    this.currentPage = 1;
-  }
-  
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
+  private stopAutoRefresh(): void {
+    if (this.autoRefreshSubscription) {
+      this.autoRefreshSubscription.unsubscribe();
+      this.autoRefreshSubscription = undefined;
     }
   }
   
-  previousPage(): void {
-    if (this.currentPage > 1) this.currentPage--;
+  private updatePagination(): void {
+    this.totalPages = Math.ceil(this.displayedOrders.length / this.pageSize);
+    const start = (this.currentPage - 1) * this.pageSize;
+    this.paginatedOrders = this.displayedOrders.slice(start, start + this.pageSize);
+    this.visiblePages = this.calculateVisiblePages();
+    const displayStart = (this.currentPage - 1) * this.pageSize + 1;
+    const displayEnd = Math.min(displayStart + this.pageSize - 1, this.displayedOrders.length);
+    this.paginationInfo = `Showing ${displayStart}-${displayEnd} of ${this.displayedOrders.length} orders`;
   }
   
-  nextPage(): void {
-    if (this.currentPage < this.totalPages) this.currentPage++;
-  }
-  
-  get visiblePages(): number[] {
+  private calculateVisiblePages(): number[] {
     const pages: number[] = [];
     const maxVisible = 5;
     let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
@@ -151,6 +111,53 @@ export class OrderListComponent {
     if (end - start < maxVisible - 1) start = Math.max(1, end - maxVisible + 1);
     for (let i = start; i <= end; i++) pages.push(i);
     return pages;
+  }
+  
+  onSearch(): void {
+    this.facade.setSearchTerm(this.searchQuery);
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+  
+  onStatusFilterChange(): void {
+    this.facade.setStatusFilter(this.statusFilter);
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+  
+  onSortChange(field: SortField, direction: SortDirection): void {
+    this.sortField = field;
+    this.sortDirection = direction;
+    this.facade.setSortBy(field);
+    this.facade.setSortDirection(direction);
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+  
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.updatePagination();
+  }
+  
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+  
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+  
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
   }
   
   getStatusClass(status: Order['status']): string {

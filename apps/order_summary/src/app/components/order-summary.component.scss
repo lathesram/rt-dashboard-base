@@ -43,25 +43,6 @@
   opacity: 0.9;
 }
 
-.auto-refresh-indicator {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-
-  .indicator-dot {
-    width: 0.5rem;
-    height: 0.5rem;
-    border-radius: 50%;
-    background: #9ca3af;
-    transition: background 200ms ease-in-out;
-  }
-
-  &.active .indicator-dot {
-    background: #10b981;
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
-  }
-}
-
 .time-range-selector {
   .time-range-select {
     padding: 0.75rem 1rem;

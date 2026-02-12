@@ -5,6 +5,17 @@ const config: ModuleFederationConfig = {
   exposes: {
     './Routes': 'apps/order_list/src/app/remote-entry/entry.routes.ts',
   },
+  shared: (name, config) => {
+    // Share NgRx as singletons across all MFEs
+    if (name.startsWith('@ngrx/')) {
+      return { singleton: true, strictVersion: true, requiredVersion: 'auto' };
+    }
+    // Share our custom library as singleton
+    if (name.startsWith('@rt-dashboard/')) {
+      return { singleton: true, strictVersion: false, requiredVersion: false };
+    }
+    return config;
+  },
 };
 
 /**

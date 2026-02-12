@@ -45,7 +45,7 @@
           <label>Sort by:</label>
           <select #sortSelect (change)="onSortChange(sortField, sortDirection)" [(ngModel)]="sortField" class="filter-select">
             <option value="id">ID</option>
-            <option value="timestamp">Timestamp</option>
+            <option value="createdAt">Timestamp</option>
             <option value="amount">Amount</option>
           </select>
           <button 
@@ -53,15 +53,6 @@
             (click)="onSortChange(sortField, sortDirection === 'asc' ? 'desc' : 'asc')">
             {{ sortDirection === 'asc' ? '↑' : '↓' }}
           </button>
-        </div>
-
-        <!-- Auto-refresh Toggle -->
-        <div class="auto-refresh">
-          <label class="toggle-label">
-            <input type="checkbox" [(ngModel)]="autoRefresh" (change)="toggleAutoRefresh()">
-            <span class="toggle-text">Auto-refresh</span>
-            <span class="refresh-indicator" [class.active]="autoRefresh"></span>
-          </label>
         </div>
       </div>
 

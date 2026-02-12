@@ -19,6 +19,17 @@ const config: ModuleFederationConfig = {
     ['order_list', 'http://localhost:4202'],
     ['order_summary', 'http://localhost:4203'],
   ],
+  shared: (name, config) => {
+    // Share NgRx as singletons across all MFEs
+    if (name.startsWith('@ngrx/')) {
+      return { singleton: true, strictVersion: true, requiredVersion: 'auto' };
+    }
+    // Share our custom library as singleton
+    if (name.startsWith('@rt-dashboard/')) {
+      return { singleton: true, strictVersion: false, requiredVersion: false };
+    }
+    return config;
+  },
 };
 
 /**
