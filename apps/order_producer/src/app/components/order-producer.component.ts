@@ -18,7 +18,6 @@ export class OrderProducerComponent {
   lastGenerated = new Date();
   generationInterval = 1000;
   batchSize = 1;
-  maxOrders = 100;
   
   intervalOptions = [
     { label: '500ms', value: 500 },
@@ -37,10 +36,6 @@ export class OrderProducerComponent {
     this.generationStatus = 'Active';
   }
   
-  onPauseGeneration(): void {
-    this.generationStatus = 'Paused';
-  }
-  
   onStopGeneration(): void {
     this.generationStatus = 'Stopped';
   }
@@ -55,10 +50,6 @@ export class OrderProducerComponent {
   
   onBatchSizeChange(): void {
     this.updateGenerationRate();
-  }
-  
-  onMaxOrdersChange(): void {
-    // Config updated
   }
   
   toggleConfig(): void {

@@ -49,14 +49,6 @@
         </button>
 
         <button 
-          class="btn btn-warning" 
-          (click)="onPauseGeneration()"
-          [disabled]="generationStatus !== 'Active'">
-          <span class="btn-icon">⏸</span>
-          Pause Generation
-        </button>
-
-        <button 
           class="btn btn-danger" 
           (click)="onStopGeneration()"
           [disabled]="generationStatus === 'Stopped'">
@@ -108,19 +100,6 @@
                 {{ size }} {{ size === 1 ? 'order' : 'orders' }}
               </option>
             </select>
-          </div>
-
-          <!-- Max Orders -->
-          <div class="config-item">
-            <label for="maxOrders">Max Orders</label>
-            <input 
-              id="maxOrders" 
-              type="number" 
-              [(ngModel)]="maxOrders" 
-              (change)="onMaxOrdersChange()"
-              class="config-input"
-              min="1"
-              max="10000">
           </div>
         </div>
       </div>
