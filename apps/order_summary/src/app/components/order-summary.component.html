@@ -3,7 +3,7 @@
     <!-- Header Section -->
     <div class="card-header">
       <div class="header-content">
-        <h1>Order Summary Dashboard</h1>
+        <h1>Order Summary Dashboard (Total: {{ summary.total }})</h1>
         <div class="header-meta">
           <span class="last-updated">Last updated: {{ secondsSinceUpdate }}s ago</span>
           <span class="auto-refresh-indicator" [class.active]="isAutoRefresh">
