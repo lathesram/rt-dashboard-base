@@ -1,0 +1,13 @@
+{
+  "name": "shared-data-access-orders",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "libs/shared/data-access-orders/src",
+  "prefix": "rt",
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  },
+  "tags": ["type:data-access", "scope:shared"]
+}

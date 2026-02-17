@@ -6,11 +6,11 @@
       <div class="performance-indicator">
         <div class="indicator-item">
           <span class="label">Last updated:</span>
-          <span class="value">{{ secondsSinceUpdate }}s ago</span>
+          <span class="value">Auto-refresh enabled</span>
         </div>
         <div class="indicator-item">
           <span class="label">Renders:</span>
-          <span class="value">{{ renderCount }}</span>
+          <span class="value">{{ renderCount$ | async }}</span>
         </div>
       </div>
     </div>
@@ -45,7 +45,7 @@
           <label>Sort by:</label>
           <select #sortSelect (change)="onSortChange(sortField, sortDirection)" [(ngModel)]="sortField" class="filter-select">
             <option value="id">ID</option>
-            <option value="timestamp">Timestamp</option>
+            <option value="createdAt">Timestamp</option>
             <option value="amount">Amount</option>
           </select>
           <button 
@@ -58,33 +58,22 @@
 
       <!-- Count Display -->
       <div class="count-display">
-        {{ paginationInfo }}
-      </div>
-    </div>
-
-    <!-- Loading Skeleton -->
-    <div *ngIf="isLoading" class="loading-skeleton">
-      <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
-        <div class="skeleton-cell"></div>
-        <div class="skeleton-cell"></div>
-        <div class="skeleton-cell"></div>
-        <div class="skeleton-cell"></div>
-        <div class="skeleton-cell"></div>
+        Showing {{ (filteredOrdersCount$ | async) || 0 }} orders
       </div>
     </div>
 
     <!-- Data Table -->
-    <div *ngIf="!isLoading" class="table-container">
+    <div class="table-container">
       <!-- Empty State -->
-      <div *ngIf="displayedOrders.length === 0" class="empty-state">
+      <div *ngIf="(filteredOrders$ | async)?.length === 0" class="empty-state">
         <div class="empty-icon">📋</div>
         <div class="empty-message">No orders found</div>
-        <div class="empty-hint">Try adjusting your filters</div>
+        <div class="empty-hint">Try adjusting your filters or generate orders</div>
       </div>
 
       <!-- Table -->
-      <table *ngIf="paginatedOrders.length > 0" class="data-table">
-        <thead>
+      <table *ngIf="(paginatedOrders$ | async) as paginatedOrders" class="data-table">
+        <thead *ngIf="paginatedOrders.length > 0">
           <tr>
             <th>Order ID</th>
             <th>Customer Name</th>
@@ -114,11 +103,11 @@
     </div>
 
     <!-- Pagination -->
-    <div *ngIf="displayedOrders.length > 0" class="pagination-section">
+    <div *ngIf="((filteredOrders$ | async)?.length || 0) > 0" class="pagination-section">
       <div class="page-size-selector">
         <label>Show:</label>
         <select [(ngModel)]="pageSize" (change)="onPageSizeChange()" class="page-size-select">
-          <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+          <option *ngFor="let size of (pageSizeOptions$ | async)" [value]="size">{{ size }}</option>
         </select>
         <span>per page</span>
       </div>

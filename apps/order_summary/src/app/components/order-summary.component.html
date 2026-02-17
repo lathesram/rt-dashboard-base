@@ -1,14 +1,14 @@
-<div class="order-summary-container">
+<div class="order-summary-container" *ngIf="summary$ | async as summary">
   <div class="summary-card">
     <!-- Header Section -->
     <div class="card-header">
       <div class="header-content">
         <h1>Order Summary Dashboard</h1>
         <div class="header-meta">
-          <span class="last-updated">Last updated: {{ secondsSinceUpdate }}s ago</span>
-          <span class="auto-refresh-indicator" [class.active]="isAutoRefresh">
+          <span class="last-updated">Auto-refresh enabled</span>
+          <span class="auto-refresh-indicator active">
             <span class="indicator-dot"></span>
-            {{ isAutoRefresh ? 'Auto-refresh ON' : 'Auto-refresh OFF' }}
+            Live updates
           </span>
         </div>
       </div>
@@ -16,7 +16,7 @@
       <!-- Time Range Selector -->
       <div class="time-range-selector">
         <select [(ngModel)]="selectedTimeRange" (change)="onTimeRangeChange()" class="time-range-select">
-          <option *ngFor="let option of timeRangeOptions" [value]="option.value">
+          <option *ngFor="let option of (timeRangeOptions$ | async)" [value]="option.value">
             {{ option.label }}
           </option>
         </select>
@@ -34,7 +34,7 @@
             <div class="kpi-value">{{ formatNumber(summary.total) }}</div>
             <div class="kpi-trend" [ngClass]="getTrendClass(summary.trends.totalChange)">
               <span class="trend-icon">{{ getTrendIcon(summary.trends.totalChange) }}</span>
-              <span class="trend-text">{{ summary.trends.totalChange }}% from yesterday</span>
+              <span class="trend-text">{{ summary.trends.totalChange }}% from baseline</span>
             </div>
           </div>
         </div>
@@ -46,7 +46,7 @@
             <div class="kpi-label">New Orders</div>
             <div class="kpi-value">{{ formatNumber(summary.byStatus.new) }}</div>
             <div class="kpi-badge new-badge">
-              {{ formatPercentage(statusPercentages.new) }} of total
+              {{ formatPercentage(getStatusPercentages(summary).new) }} of total
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@
             <div class="kpi-label">Processing Orders</div>
             <div class="kpi-value">{{ formatNumber(summary.byStatus.processing) }}</div>
             <div class="kpi-badge processing-badge">
-              {{ formatPercentage(statusPercentages.processing) }} of total
+              {{ formatPercentage(getStatusPercentages(summary).processing) }} of total
             </div>
           </div>
         </div>
@@ -70,7 +70,7 @@
             <div class="kpi-label">Completed Orders</div>
             <div class="kpi-value">{{ formatNumber(summary.byStatus.completed) }}</div>
             <div class="kpi-badge completed-badge">
-              {{ formatPercentage(statusPercentages.completed) }} of total
+              {{ formatPercentage(getStatusPercentages(summary).completed) }} of total
             </div>
           </div>
         </div>
@@ -95,9 +95,9 @@
                 <span class="status-count">{{ formatNumber(summary.byStatus.new) }}</span>
               </div>
               <div class="progress-bar">
-                <div class="progress-fill new" [style.width.%]="statusPercentages.new"></div>
+                <div class="progress-fill new" [style.width.%]="getStatusPercentages(summary).new"></div>
               </div>
-              <div class="status-percentage">{{ formatPercentage(statusPercentages.new) }}</div>
+              <div class="status-percentage">{{ formatPercentage(getStatusPercentages(summary).new) }}</div>
             </div>
 
             <!-- Processing -->
@@ -110,9 +110,9 @@
                 <span class="status-count">{{ formatNumber(summary.byStatus.processing) }}</span>
               </div>
               <div class="progress-bar">
-                <div class="progress-fill processing" [style.width.%]="statusPercentages.processing"></div>
+                <div class="progress-fill processing" [style.width.%]="getStatusPercentages(summary).processing"></div>
               </div>
-              <div class="status-percentage">{{ formatPercentage(statusPercentages.processing) }}</div>
+              <div class="status-percentage">{{ formatPercentage(getStatusPercentages(summary).processing) }}</div>
             </div>
 
             <!-- Completed -->
@@ -125,9 +125,9 @@
                 <span class="status-count">{{ formatNumber(summary.byStatus.completed) }}</span>
               </div>
               <div class="progress-bar">
-                <div class="progress-fill completed" [style.width.%]="statusPercentages.completed"></div>
+                <div class="progress-fill completed" [style.width.%]="getStatusPercentages(summary).completed"></div>
               </div>
-              <div class="status-percentage">{{ formatPercentage(statusPercentages.completed) }}</div>
+              <div class="status-percentage">{{ formatPercentage(getStatusPercentages(summary).completed) }}</div>
             </div>
           </div>
         </div>

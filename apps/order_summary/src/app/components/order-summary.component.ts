@@ -1,15 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface OrderSummary {
-  total: number;
-  byStatus: { new: number; processing: number; completed: number };
-  revenue: { total: number; average: number; highest: number };
-  trends: { totalChange: number; newToday: number; completedToday: number };
-}
-
-type TimeRange = 'hour' | 'day' | 'week' | 'all';
+import { Store } from '@ngrx/store';
+import { Observable, Subscription } from 'rxjs';
+import { OrderSummary } from '@rt-dashboard/shared/data-access-orders';
+import * as OrderSummaryActions from '../store/order-summary.actions';
+import * as OrderSummarySelectors from '../store/order-summary.selectors';
+import { TimeRange } from '../store/order-summary.state';
 
 @Component({
   selector: 'rt-order-summary',
@@ -18,37 +15,51 @@ type TimeRange = 'hour' | 'day' | 'week' | 'all';
   templateUrl: './order-summary.component.html',
   styleUrls: ['./order-summary.component.scss']
 })
-export class OrderSummaryComponent {
-  summary: OrderSummary;
-  selectedTimeRange: TimeRange = 'day';
-  lastUpdated = new Date();
-  isAutoRefresh = true;
-  timeRangeOptions = [
-    { label: 'Last Hour', value: 'hour' as TimeRange },
-    { label: 'Last 24h', value: 'day' as TimeRange },
-    { label: 'Last 7 days', value: 'week' as TimeRange },
-    { label: 'All Time', value: 'all' as TimeRange }
-  ];
+export class OrderSummaryComponent implements OnInit, OnDestroy {
+  // Observables from stores
+  summary$: Observable<OrderSummary>;
+  selectedTimeRange$: Observable<TimeRange>;
+  lastUpdated$: Observable<Date>;
+  timeRangeOptions$: Observable<{ label: string; value: TimeRange }[]>;
+  secondsSinceUpdate$: Observable<number>;
   
-  constructor() {
-    this.summary = {
-      total: 1247,
-      byStatus: { new: 423, processing: 568, completed: 256 },
-      revenue: { total: 127450.00, average: 102.25, highest: 4850.00 },
-      trends: { totalChange: 12, newToday: 50, completedToday: 120 }
-    };
+  // Current values for ngModel binding
+  selectedTimeRange: TimeRange = 'day';
+  
+  private subscriptions = new Subscription();
+  
+  constructor(private store: Store) {
+    // Initialize observables
+    this.summary$ = this.store.select(OrderSummarySelectors.selectOrderSummary);
+    this.selectedTimeRange$ = this.store.select(OrderSummarySelectors.selectSelectedTimeRange);
+    this.lastUpdated$ = this.store.select(OrderSummarySelectors.selectLastUpdated);
+    this.timeRangeOptions$ = this.store.select(OrderSummarySelectors.selectTimeRangeOptions);
+    this.secondsSinceUpdate$ = this.store.select(OrderSummarySelectors.selectSecondsSinceUpdate);
+  }
+  
+  ngOnInit(): void {
+    // Subscribe to time range for ngModel binding
+    this.subscriptions.add(
+      this.selectedTimeRange$.subscribe(timeRange => {
+        this.selectedTimeRange = timeRange;
+      })
+    );
+  }
+  
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
   
   onTimeRangeChange(): void {
-    this.lastUpdated = new Date();
+    this.store.dispatch(OrderSummaryActions.setTimeRange({ timeRange: this.selectedTimeRange }));
   }
   
-  get statusPercentages() {
-    const total = this.summary.total;
+  getStatusPercentages(summary: OrderSummary) {
+    const total = summary.total || 1;
     return {
-      new: (this.summary.byStatus.new / total) * 100,
-      processing: (this.summary.byStatus.processing / total) * 100,
-      completed: (this.summary.byStatus.completed / total) * 100
+      new: (summary.byStatus.new / total) * 100,
+      processing: (summary.byStatus.processing / total) * 100,
+      completed: (summary.byStatus.completed / total) * 100
     };
   }
   
@@ -70,9 +81,5 @@ export class OrderSummaryComponent {
   
   getTrendClass(change: number): string {
     return change >= 0 ? 'trend-up' : 'trend-down';
-  }
-  
-  get secondsSinceUpdate(): number {
-    return Math.floor((Date.now() - this.lastUpdated.getTime()) / 1000);
   }
 }
