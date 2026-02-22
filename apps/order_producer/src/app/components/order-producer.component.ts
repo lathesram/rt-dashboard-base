@@ -87,11 +87,11 @@ export class OrderProducerComponent implements OnInit, OnDestroy {
   }
   
   onIntervalChange(): void {
-    this.store.dispatch(OrderProducerActions.setGenerationInterval({ interval: this.generationInterval }));
+    this.store.dispatch(OrderProducerActions.setGenerationInterval({ interval: Number(this.generationInterval) }));
   }
   
   onBatchSizeChange(): void {
-    this.store.dispatch(OrderProducerActions.setBatchSize({ size: this.batchSize }));
+    this.store.dispatch(OrderProducerActions.setBatchSize({ size: Number(this.batchSize) }));
   }
   
   toggleConfig(): void {

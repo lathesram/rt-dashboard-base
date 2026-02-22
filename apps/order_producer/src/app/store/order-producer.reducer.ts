@@ -50,7 +50,7 @@ export const orderProducerReducer = createReducer(
 
   on(OrderProducerActions.incrementOrdersGenerated, (state, { count }): OrderProducerState => ({
     ...state,
-    ordersGenerated: state.ordersGenerated + count
+    ordersGenerated: state.ordersGenerated + Number(count)
   })),
 
   on(OrderProducerActions.updateLastGenerated, (state): OrderProducerState => ({

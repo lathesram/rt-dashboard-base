@@ -82,7 +82,7 @@
               [(ngModel)]="generationInterval" 
               (change)="onIntervalChange()"
               class="config-select">
-              <option *ngFor="let option of (intervalOptions$ | async)" [value]="option.value">
+              <option *ngFor="let option of (intervalOptions$ | async)" [ngValue]="option.value">
                 {{ option.label }}
               </option>
             </select>
@@ -96,7 +96,7 @@
               [(ngModel)]="batchSize" 
               (change)="onBatchSizeChange()"
               class="config-select">
-              <option *ngFor="let size of (batchSizeOptions$ | async)" [value]="size">
+              <option *ngFor="let size of (batchSizeOptions$ | async)" [ngValue]="size">
                 {{ size }} {{ size === 1 ? 'order' : 'orders' }}
               </option>
             </select>
