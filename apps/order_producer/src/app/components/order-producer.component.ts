@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -12,7 +12,8 @@ import * as OrderProducerSelectors from '../store/order-producer.selectors';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './order-producer.component.html',
-  styleUrls: ['./order-producer.component.scss']
+  styleUrls: ['./order-producer.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderProducerComponent implements OnInit {
   generationStatus$: Observable<GenerationStatus>;
@@ -40,7 +41,7 @@ export class OrderProducerComponent implements OnInit {
   batchSizeOptions = [1, 5, 10];
   isConfigExpanded = false;
   
-  constructor(private store: Store) {
+  constructor(private store: Store, private cdr: ChangeDetectorRef, private ngZone: NgZone) {
     this.generationStatus$ = this.store.select(OrderProducerSelectors.selectGenerationStatus);
     this.ordersGenerated$ = this.store.select(OrderProducerSelectors.selectOrdersGenerated);
     this.generationRate$ = this.store.select(OrderProducerSelectors.selectGenerationRate);
@@ -54,15 +55,15 @@ export class OrderProducerComponent implements OnInit {
 
   ngOnInit(): void {
     // Subscribe to store values for two-way binding
-    this.generationStatus$.subscribe(s => this.generationStatus = s);
-    this.ordersGenerated$.subscribe(o => this.ordersGenerated = o);
-    this.generationRate$.subscribe(r => this.generationRate = r);
-    this.lastGenerated$.subscribe(l => this.lastGenerated = l);
-    this.generationInterval$.subscribe(i => this.generationInterval = i);
-    this.batchSize$.subscribe(b => this.batchSize = b);
-    this.intervalOptions$.subscribe(o => this.intervalOptions = o);
-    this.batchSizeOptions$.subscribe(o => this.batchSizeOptions = o);
-    this.isConfigExpanded$.subscribe(e => this.isConfigExpanded = e);
+    this.generationStatus$.subscribe(s => this.ngZone.run(() => { this.generationStatus = s; this.cdr.markForCheck(); }));
+    this.ordersGenerated$.subscribe(o => this.ngZone.run(() => { this.ordersGenerated = o; this.cdr.markForCheck(); }));
+    this.generationRate$.subscribe(r => this.ngZone.run(() => { this.generationRate = r; this.cdr.markForCheck(); }));
+    this.lastGenerated$.subscribe(l => this.ngZone.run(() => { this.lastGenerated = l; this.cdr.markForCheck(); }));
+    this.generationInterval$.subscribe(i => this.ngZone.run(() => { this.generationInterval = i; this.cdr.markForCheck(); }));
+    this.batchSize$.subscribe(b => this.ngZone.run(() => { this.batchSize = b; this.cdr.markForCheck(); }));
+    this.intervalOptions$.subscribe(o => this.ngZone.run(() => { this.intervalOptions = o; this.cdr.markForCheck(); }));
+    this.batchSizeOptions$.subscribe(o => this.ngZone.run(() => { this.batchSizeOptions = o; this.cdr.markForCheck(); }));
+    this.isConfigExpanded$.subscribe(e => this.ngZone.run(() => { this.isConfigExpanded = e; this.cdr.markForCheck(); }));
   }
   
   onStartGeneration(): void {
@@ -78,11 +79,11 @@ export class OrderProducerComponent implements OnInit {
   }
   
   onIntervalChange(): void {
-    this.store.dispatch(OrderProducerActions.setGenerationInterval({ interval: this.generationInterval }));
+    this.store.dispatch(OrderProducerActions.setGenerationInterval({ interval: +this.generationInterval }));
   }
   
   onBatchSizeChange(): void {
-    this.store.dispatch(OrderProducerActions.setBatchSize({ size: this.batchSize }));
+    this.store.dispatch(OrderProducerActions.setBatchSize({ size: +this.batchSize }));
   }
   
   toggleConfig(): void {

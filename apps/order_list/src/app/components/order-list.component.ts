@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Store } from '@ngrx/store';
@@ -13,7 +13,8 @@ import { OrderBroadcastService } from '../services/order-broadcast.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './order-list.component.html',
-  styleUrls: ['./order-list.component.scss']
+  styleUrls: ['./order-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrderListComponent implements OnInit, OnDestroy {
   allOrders$: Observable<Order[]>;

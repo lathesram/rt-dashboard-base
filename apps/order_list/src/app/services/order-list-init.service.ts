@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { OrderBroadcastService } from './order-broadcast.service';
 import * as OrderListActions from '../store/order-list.actions';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class OrderListInitService {
   private initialized = false;
 

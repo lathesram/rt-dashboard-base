@@ -32,14 +32,14 @@ export const orderProducerReducer = createReducer(
   
   on(OrderProducerActions.setGenerationInterval, (state, { interval }) => ({
     ...state,
-    generationInterval: interval,
-    generationRate: calculateGenerationRate(state.batchSize, interval)
+    generationInterval: Number(interval),
+    generationRate: calculateGenerationRate(state.batchSize, Number(interval))
   })),
   
   on(OrderProducerActions.setBatchSize, (state, { size }) => ({
     ...state,
-    batchSize: size,
-    generationRate: calculateGenerationRate(size, state.generationInterval)
+    batchSize: Number(size),
+    generationRate: calculateGenerationRate(Number(size), state.generationInterval)
   })),
   
   on(OrderProducerActions.toggleConfig, (state) => ({
@@ -49,7 +49,7 @@ export const orderProducerReducer = createReducer(
   
   on(OrderProducerActions.incrementOrdersGenerated, (state, { count }) => ({
     ...state,
-    ordersGenerated: state.ordersGenerated + count
+    ordersGenerated: Number(state.ordersGenerated) + Number(count)
   })),
   
   on(OrderProducerActions.updateLastGenerated, (state) => ({

@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { OrderBroadcastService } from './order-broadcast.service';
 import * as OrderSummaryActions from '../store/order-summary.actions';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class OrderSummaryInitService {
   private initialized = false;
 
