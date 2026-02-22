@@ -61,7 +61,21 @@
       "executor": "@nx/angular:module-federation-dev-server",
       "options": {
         "port": 4200,
-        "publicHost": "http://localhost:4200"
+        "publicHost": "http://localhost:4200",
+        "devRemotes": [
+          {
+            "remoteName": "order_producer",
+            "configuration": "development"
+          },
+          {
+            "remoteName": "order_list",
+            "configuration": "development"
+          },
+          {
+            "remoteName": "order_summary",
+            "configuration": "development"
+          }
+        ]
       },
       "configurations": {
         "production": {

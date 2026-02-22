@@ -1,7 +1,7 @@
-import { Injectable, OnDestroy } from '@angular/core';
+import { Injectable, OnDestroy, inject } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { interval, Subscription } from 'rxjs';
-import { withLatestFrom } from 'rxjs/operators';
+import { interval, Subscription, combineLatest } from 'rxjs';
+import { distinctUntilChanged } from 'rxjs/operators';
 import { Order, OrdersFacade } from '@rt-dashboard/shared/data-access-orders';
 import * as OrderProducerSelectors from '../store/order-producer.selectors';
 import * as OrderProducerActions from '../store/order-producer.actions';
@@ -14,42 +14,48 @@ import * as OrderProducerActions from '../store/order-producer.actions';
   providedIn: 'root'
 })
 export class OrderGenerationService implements OnDestroy {
+  private store = inject(Store);
+  private ordersFacade = inject(OrdersFacade);
+
   private subscriptions = new Subscription();
   private generationTimer?: Subscription;
   private currentInterval = 1000;
   private currentBatchSize = 1;
   private orderCounter = 1;
-  
-  constructor(
-    private store: Store,
-    private ordersFacade: OrdersFacade
-  ) {
+
+  constructor() {
     this.initialize();
   }
-  
+
   /**
-   * Initialize the service by subscribing to store state changes
+   * Initialize the service by subscribing to store state changes.
+   * Batch size updates independently so the timer isn't restarted needlessly.
+   * Status + interval are combined so the timer always uses the latest interval.
    */
   private initialize(): void {
-    // Subscribe to generation status, interval, and batch size
+    // Track batch size changes without restarting the timer
     this.subscriptions.add(
-      this.store.select(OrderProducerSelectors.selectGenerationStatus)
-        .pipe(
-          withLatestFrom(
-            this.store.select(OrderProducerSelectors.selectGenerationInterval),
-            this.store.select(OrderProducerSelectors.selectBatchSize)
-          )
-        )
-        .subscribe(([status, interval, batchSize]) => {
-          this.currentInterval = interval;
+      this.store.select(OrderProducerSelectors.selectBatchSize)
+        .pipe(distinctUntilChanged())
+        .subscribe(batchSize => {
           this.currentBatchSize = batchSize;
-          
-          if (status === 'Active') {
-            this.startGenerationTimer();
-          } else {
-            this.stopGenerationTimer();
-          }
         })
+    );
+
+    // Start/stop/restart the timer when status or interval changes
+    this.subscriptions.add(
+      combineLatest([
+        this.store.select(OrderProducerSelectors.selectGenerationStatus),
+        this.store.select(OrderProducerSelectors.selectGenerationInterval).pipe(distinctUntilChanged()),
+      ]).subscribe(([status, genInterval]) => {
+        this.currentInterval = genInterval;
+        if (status === 'Active') {
+          // Restarts with the new interval (stopGenerationTimer is called inside)
+          this.startGenerationTimer();
+        } else {
+          this.stopGenerationTimer();
+        }
+      })
     );
   }
   
