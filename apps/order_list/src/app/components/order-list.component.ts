@@ -63,6 +63,27 @@ export class OrderListComponent implements OnInit, OnDestroy {
         this.lastUpdated = new Date();
         this.updatePagination();
         this.cdr.detectChanges();
+
+        // Latency measurement: Producer -> List
+        try {
+          performance.mark('orderList-updated');
+          performance.measure(
+            'producer-to-list',
+            'createOrder-dispatch',
+            'orderList-updated'
+          );
+          const measures = performance.getEntriesByName('producer-to-list');
+          const last = measures[measures.length - 1];
+          if (last) {
+            // Logged in console and later copied into the latency dataset
+            console.log('LATENCY_PRODUCER_TO_LIST_MS', last.duration);
+          }
+        } catch {
+          // Ignore cases where marks are not set (e.g. initial load)
+        } finally {
+          performance.clearMarks('orderList-updated');
+          performance.clearMeasures('producer-to-list');
+        }
       });
     });
     

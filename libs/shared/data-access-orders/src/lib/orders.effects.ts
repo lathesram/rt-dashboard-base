@@ -38,6 +38,12 @@ export class OrdersEffects {
                 // Generate batch of orders
                 const orders = this.generateOrderBatch(config.batchSize, currentCount);
                 const newCount = currentCount + orders.length;
+                // Mark the time at which new orders are dispatched to the store
+                try {
+                  performance.mark('createOrder-dispatch');
+                } catch {
+                  // Ignore environments where performance API is not available
+                }
 
                 return [
                   OrdersActions.addOrders({ orders }),
