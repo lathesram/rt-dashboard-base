@@ -71,6 +71,26 @@ export class OrderSummaryComponent implements OnInit, OnDestroy {
         this.summary = s;
         console.log('[Order Summary] Summary updated - total:', s.total, 'new:', s.byStatus.new, 'processing:', s.byStatus.processing, 'completed:', s.byStatus.completed);
         this.cdr.markForCheck();
+
+        // Latency measurement: Producer -> Summary
+        try {
+          performance.mark('orderSummary-updated');
+          performance.measure(
+            'producer-to-summary',
+            'createOrder-dispatch',
+            'orderSummary-updated'
+          );
+          const measures = performance.getEntriesByName('producer-to-summary');
+          const last = measures[measures.length - 1];
+          if (last) {
+            console.log('LATENCY_PRODUCER_TO_SUMMARY_MS', last.duration);
+          }
+        } catch {
+          // Ignore cases where marks are not yet set (e.g. initial load)
+        } finally {
+          performance.clearMarks('orderSummary-updated');
+          performance.clearMeasures('producer-to-summary');
+        }
       });
     });
     this.selectedTimeRange$.subscribe(t => {

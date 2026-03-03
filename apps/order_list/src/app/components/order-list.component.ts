@@ -118,6 +118,26 @@ export class OrderListComponent implements OnInit, OnDestroy {
       this.ngZone.run(() => {
         this.displayedOrders = o;
         this.cdr.markForCheck();
+
+        // Latency measurement: Producer -> List
+        try {
+          performance.mark('orderList-updated');
+          performance.measure(
+            'producer-to-list',
+            'createOrder-dispatch',
+            'orderList-updated'
+          );
+          const measures = performance.getEntriesByName('producer-to-list');
+          const last = measures[measures.length - 1];
+          if (last) {
+            console.log('LATENCY_PRODUCER_TO_LIST_MS', last.duration);
+          }
+        } catch {
+          // Ignore cases where marks are not yet set (e.g. initial load)
+        } finally {
+          performance.clearMarks('orderList-updated');
+          performance.clearMeasures('producer-to-list');
+        }
       });
     });
     this.allOrders$.subscribe(o => {

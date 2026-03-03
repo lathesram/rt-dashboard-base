@@ -19,6 +19,14 @@ export class OrderBroadcastService {
     console.log('[Broadcast Service] Order details:', order);
     console.log('[Broadcast Service] Window object:', typeof window);
     
+    // Mark the time at which a new order is broadcast, used as the
+    // start point for inter micro-frontend latency measurements.
+    try {
+      performance.mark('createOrder-dispatch');
+    } catch {
+      // Ignore environments where the Performance API is not available
+    }
+
     const event = new CustomEvent(this.ORDER_CREATED_EVENT, {
       detail: order,
       bubbles: true,
